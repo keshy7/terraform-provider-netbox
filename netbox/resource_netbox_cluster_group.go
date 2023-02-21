@@ -22,23 +22,23 @@ func resourceNetboxClusterGroup() *schema.Resource {
 > Cluster groups may be created for the purpose of organizing clusters. The arrangement of clusters into groups is optional.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -53,9 +53,9 @@ func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) err
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name attribute if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}
@@ -112,9 +112,9 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}

@@ -31,27 +31,27 @@ resource "netbox_asn" "test_2" {
 }
 
 func testAccNetboxAsnsByAsn() string {
-	return fmt.Sprintf(`
+	return `
 data "netbox_asns" "test" {
   filter {
 	name = "asn"
 	value = "123"
   }
-}`)
+}`
 }
 
 func testAccNetboxAsnsByAsnN() string {
-	return fmt.Sprintf(`
+	return `
 data "netbox_asns" "test" {
   filter {
 	name = "asn__n"
 	value = "123"
   }
-}`)
+}`
 }
 
 func testAccNetboxAsnsByRange(testName string) string {
-	return fmt.Sprintf(`
+	return `
 data "netbox_asns" "test" {
   filter {
 	name = "asn__gte"
@@ -62,13 +62,15 @@ data "netbox_asns" "test" {
 	name = "asn__lte"
 	value = "2000"
   }
-}`)
+}`
 }
 
 func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("asns_ds_basic")
 	setUp := testAccNetboxAsnsSetUp(testName)
-	resource.ParallelTest(t, resource.TestCase{
+	// This test cannot be run in parallel with other tests, because other tests create also ASNs
+	// These ASNs then interfere with the __n filter test
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{

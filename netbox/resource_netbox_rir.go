@@ -22,11 +22,11 @@ func resourceNetboxRir() *schema.Resource {
 > Regional Internet registries are responsible for the allocation of globally-routable address space. The five RIRs are ARIN, RIPE, APNIC, LACNIC, and AFRINIC. However, some address space has been set aside for internal use, such as defined in RFCs 1918 and 6598. NetBox considers these RFCs as a sort of RIR as well; that is, an authority which "owns" certain address space. There also exist lower-tier registries which serve particular geographic areas.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -34,7 +34,7 @@ func resourceNetboxRir() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -45,9 +45,9 @@ func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name attribute if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}
@@ -101,9 +101,9 @@ func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name attribute if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}

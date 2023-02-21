@@ -20,34 +20,34 @@ func resourceNetboxCircuit() *schema.Resource {
 		Description: `:meta:subcategory:Circuits:From the [official documentation](https://docs.netbox.dev/en/stable/features/circuits/#circuits_1):
 
 > A communications circuit represents a single physical link connecting exactly two endpoints, commonly referred to as its A and Z terminations. A circuit in NetBox may have zero, one, or two terminations defined. It is common to have only one termination defined when you don't necessarily care about the details of the provider side of the circuit, e.g. for Internet access circuits. Both terminations would likely be modeled for circuits which connect one customer site to another.
-> 
+>
 > Each circuit is associated with a provider and a user-defined type. For example, you might have Internet access circuits delivered to each site by one provider, and private MPLS circuits delivered by another. Each circuit must be assigned a circuit ID, each of which must be unique per provider.`,
 
 		Schema: map[string]*schema.Schema{
-			"provider_id": &schema.Schema{
+			"provider_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"cid": &schema.Schema{
+			"cid": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"type_id": &schema.Schema{
+			"type_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"planned", "provisioning", "active", "offline", "deprovisioning", "decommissioning"}, false),
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

@@ -21,18 +21,18 @@ func resourceNetboxClusterType() *schema.Resource {
 > A cluster type represents a technology or mechanism by which a cluster is formed. For example, you might create a cluster type named "VMware vSphere" for a locally hosted cluster or "DigitalOcean NYC3" for one hosted by a cloud provider.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -44,9 +44,9 @@ func resourceNetboxClusterTypeCreate(d *schema.ResourceData, m interface{}) erro
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}
@@ -101,9 +101,9 @@ func resourceNetboxClusterTypeUpdate(d *schema.ResourceData, m interface{}) erro
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}

@@ -1,12 +1,13 @@
 package netbox
 
 import (
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"strconv"
 )
 
 func resourceNetboxAvailableIPAddress() *schema.Resource {
@@ -21,7 +22,7 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 > An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
 > Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchya.
 >
-> Each IP address can also be assigned an operational status and a functional role. Statuses are hard-coded in NetBox and include the following: 
+> Each IP address can also be assigned an operational status and a functional role. Statuses are hard-coded in NetBox and include the following:
 > * Active
 > * Reserved
 > * Deprecated
@@ -31,32 +32,32 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)`,
 
 		Schema: map[string]*schema.Schema{
-			"prefix_id": &schema.Schema{
+			"prefix_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
-			"ip_range_id": &schema.Schema{
+			"ip_range_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"ip_address": &schema.Schema{
+			"ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"interface_id": &schema.Schema{
+			"interface_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vrf_id": &schema.Schema{
+			"vrf_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp", "slaac"}, false),
@@ -78,7 +79,7 @@ This resource will retrieve the next available IP address from a given prefix or
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

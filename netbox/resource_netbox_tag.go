@@ -24,29 +24,29 @@ func resourceNetboxTag() *schema.Resource {
 > Each tag has a label, color, and a URL-friendly slug. For example, the slug for a tag named "Dunder Mifflin, Inc." would be dunder-mifflin-inc. The slug is generated automatically and makes tags easier to work with as URL parameters. Each tag can also be assigned a description indicating its purpose.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"color_hex": &schema.Schema{
+			"color_hex": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "9e9e9e",
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[0-9a-f]{6}$"), "Must be hex color string"),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -58,9 +58,9 @@ func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name attribute if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}
@@ -122,9 +122,9 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}

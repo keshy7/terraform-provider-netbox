@@ -24,24 +24,24 @@ func resourceNetboxIPAddress() *schema.Resource {
 > Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchy.`,
 
 		Schema: map[string]*schema.Schema{
-			"ip_address": &schema.Schema{
+			"ip_address": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsCIDR,
 			},
-			"interface_id": &schema.Schema{
+			"interface_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vrf_id": &schema.Schema{
+			"vrf_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp"}, false),
@@ -49,6 +49,12 @@ func resourceNetboxIPAddress() *schema.Resource {
 			"dns_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"object_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "virtualization.vminterface",
+				ValidateFunc: validation.StringInSlice([]string{"virtualization.vminterface", "dcim.interface"}, false),
 			},
 			tagsKey: tagsSchema,
 			"description": {
@@ -62,7 +68,7 @@ func resourceNetboxIPAddress() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -114,8 +120,10 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 
 	if res.GetPayload().AssignedObjectID != nil {
 		d.Set("interface_id", res.GetPayload().AssignedObjectID)
+		d.Set("object_type", res.GetPayload().AssignedObjectType)
 	} else {
 		d.Set("interface_id", nil)
+		d.Set("object_type", nil)
 	}
 
 	if res.GetPayload().Vrf != nil {
@@ -156,6 +164,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 
 	ipAddress := d.Get("ip_address").(string)
 	status := d.Get("status").(string)
+	objectType := d.Get("object_type").(string)
 
 	descriptionValue, ok := d.GetOk("description")
 	if ok {
@@ -179,8 +188,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
-		// The other possible type is dcim.interface for devices
-		data.AssignedObjectType = strToPtr("virtualization.vminterface")
+		data.AssignedObjectType = strToPtr(objectType)
 		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
 	}
 

@@ -22,11 +22,11 @@ func resourceNetboxCircuitType() *schema.Resource {
 > Circuits are classified by functional type. These types are completely customizable, and are typically used to convey the type of service being delivered over a circuit.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -34,7 +34,7 @@ func resourceNetboxCircuitType() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -48,9 +48,9 @@ func resourceNetboxCircuitTypeCreate(d *schema.ResourceData, m interface{}) erro
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to model if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
@@ -102,9 +102,9 @@ func resourceNetboxCircuitTypeUpdate(d *schema.ResourceData, m interface{}) erro
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to model if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}

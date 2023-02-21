@@ -1,3 +1,33 @@
+## 3.1.0 (February 19th, 2023)
+
+CHANGES:
+
+* provider: `slug` fields are now generated to match the netbox GUI behavior
+
+ENHANCEMENTS
+
+* resource/netbox_interface: Updating `mac_address` no longer forces resource recreation ([#336](https://github.com/e-breuninger/terraform-provider-netbox/pull/336) by [@johann8384](https://github.com/johann8384))
+* resource/netbox_site: Add `physical_address` and `shipping_address` ([#337](https://github.com/e-breuninger/terraform-provider-netbox/pull/337) by [@Ikke](https://github.com/Ikke))
+* resource/netbox_ip_address: IP addresses can now be assigned to devices via the `object_type` field ([#341](https://github.com/e-breuninger/terraform-provider-netbox/pull/341) by [@arjenvri](https://github.com/arjenvri))
+
+## 3.0.13 (January 24th, 2023)
+
+ENHANCEMENTS
+
+* data-source/netbox_prefix: Add `site_id` attribute ([#320](https://github.com/e-breuninger/terraform-provider-netbox/pull/320) by [@TGM](https://github.com/TGM))
+
+## 3.0.12 (January 3rd, 2023)
+
+ENHANCEMENTS
+
+* resource/netbox_token: Add `write_enabled` attribute ([#309](https://github.com/e-breuninger/terraform-provider-netbox/pull/309) by [@keshy7](https://github.com/keshy7))
+* data-source/netbox_interfaces: The resulting interfaces now have their interface ID set
+
+BUG FIXES
+
+* resource/site: Allow unsetting `description` attribute ([#314](https://github.com/e-breuninger/terraform-provider-netbox/pull/314) by [@keshy7](https://github.com/keshy7))
+* resource/site: Set max length of the `slug` attribute to 100 ([#317](https://github.com/e-breuninger/terraform-provider-netbox/pull/317) by [@keshy7](https://github.com/keshy7))
+
 ## 3.0.11 (December 13th, 2022)
 
 ENHANCEMENTS

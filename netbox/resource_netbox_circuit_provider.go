@@ -24,11 +24,11 @@ func resourceNetboxCircuitProvider() *schema.Resource {
 > Each provider may be assigned an autonomous system number (ASN), an account number, and contact information.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -36,7 +36,7 @@ func resourceNetboxCircuitProvider() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -50,9 +50,9 @@ func resourceNetboxCircuitProviderCreate(d *schema.ResourceData, m interface{}) 
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to model if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
@@ -105,9 +105,9 @@ func resourceNetboxCircuitProviderUpdate(d *schema.ResourceData, m interface{}) 
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to model if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}

@@ -22,11 +22,11 @@ func resourceNetboxManufacturer() *schema.Resource {
 > A manufacturer represents the "make" of a device; e.g. Cisco or Dell. Each device type must be assigned to a manufacturer. (Inventory items and platforms may also be associated with manufacturers.) Each manufacturer must have a unique name and may have a description assigned to it.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -34,7 +34,7 @@ func resourceNetboxManufacturer() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -48,9 +48,9 @@ func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) err
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
@@ -102,9 +102,9 @@ func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) err
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}

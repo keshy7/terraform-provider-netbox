@@ -46,7 +46,7 @@ Each location must have a name that is unique within its parent site and locatio
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -60,9 +60,9 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
@@ -149,9 +149,9 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}

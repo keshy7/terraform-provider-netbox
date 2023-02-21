@@ -46,7 +46,6 @@ func resourceNetboxInterface() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
-				ForceNew:     true,
 			},
 			"mode": {
 				Type:         schema.TypeString,
@@ -77,7 +76,7 @@ func resourceNetboxInterface() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

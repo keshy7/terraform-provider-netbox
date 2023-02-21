@@ -22,7 +22,7 @@ func resourceNetboxContactRole() *schema.Resource {
 > A contact role defines the relationship of a contact to an assigned object. For example, you might define roles for administrative, operational, and emergency contacts`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -34,7 +34,7 @@ func resourceNetboxContactRole() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -47,9 +47,9 @@ func resourceNetboxContactRoleCreate(d *schema.ResourceData, m interface{}) erro
 	data := &models.ContactRole{}
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
@@ -101,9 +101,9 @@ func resourceNetboxContactRoleUpdate(d *schema.ResourceData, m interface{}) erro
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
