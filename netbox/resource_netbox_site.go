@@ -162,7 +162,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if timezone, ok := d.GetOk("timezone"); ok {
-		data.TimeZone = timezone.(string)
+		data.TimeZone = strToPtr(timezone.(string))
 	}
 
 	data.Asns = []int64{}
@@ -319,7 +319,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if timezone, ok := d.GetOk("timezone"); ok {
-		data.TimeZone = timezone.(string)
+		data.TimeZone = strToPtr(timezone.(string))
 	}
 
 	data.Asns = []int64{}
@@ -352,6 +352,12 @@ func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Dcim.DcimSitesDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*dcim.DcimSitesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

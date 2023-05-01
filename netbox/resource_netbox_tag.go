@@ -152,6 +152,12 @@ func resourceNetboxTagDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Extras.ExtrasTagsDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*extras.ExtrasTagsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

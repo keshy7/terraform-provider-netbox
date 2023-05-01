@@ -146,6 +146,12 @@ func resourceNetboxContactDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Tenancy.TenancyContactsDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*tenancy.TenancyContactsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

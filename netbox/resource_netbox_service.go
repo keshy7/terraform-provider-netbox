@@ -170,6 +170,12 @@ func resourceNetboxServiceDelete(d *schema.ResourceData, m interface{}) error {
 	params := ipam.NewIpamServicesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamServicesDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*ipam.IpamServicesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

@@ -163,6 +163,12 @@ func resourceNetboxTenantDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Tenancy.TenancyTenantsDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*tenancy.TenancyTenantsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

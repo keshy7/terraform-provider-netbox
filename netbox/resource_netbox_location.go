@@ -34,6 +34,10 @@ Each location must have a name that is unique within its parent site and locatio
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"site_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -66,6 +70,8 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
+
+	data.Description = getOptionalStr(d, "description", true)
 
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
@@ -117,6 +123,7 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", location.Name)
 	d.Set("slug", location.Slug)
+	d.Set("description", location.Description)
 
 	if res.GetPayload().Site != nil {
 		d.Set("site_id", res.GetPayload().Site.ID)
@@ -156,6 +163,8 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Slug = strToPtr(slugValue.(string))
 	}
 
+	data.Description = getOptionalStr(d, "description", true)
+
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
 		data.Site = int64ToPtr(int64(siteIDValue.(int)))
@@ -191,6 +200,12 @@ func resourceNetboxLocationDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Dcim.DcimLocationsDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*dcim.DcimLocationsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

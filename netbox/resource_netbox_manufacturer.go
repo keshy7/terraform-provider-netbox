@@ -129,6 +129,12 @@ func resourceNetboxManufacturerDelete(d *schema.ResourceData, m interface{}) err
 
 	_, err := api.Dcim.DcimManufacturersDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*dcim.DcimManufacturersDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

@@ -133,6 +133,12 @@ func resourceNetboxPlatformDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Dcim.DcimPlatformsDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*dcim.DcimPlatformsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

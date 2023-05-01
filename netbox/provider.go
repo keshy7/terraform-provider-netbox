@@ -84,11 +84,13 @@ func Provider() *schema.Provider {
 			"netbox_cluster_group":        resourceNetboxClusterGroup(),
 			"netbox_site":                 resourceNetboxSite(),
 			"netbox_vlan":                 resourceNetboxVlan(),
+			"netbox_vlan_group":           resourceNetboxVlanGroup(),
 			"netbox_ipam_role":            resourceNetboxIpamRole(),
 			"netbox_ip_range":             resourceNetboxIpRange(),
 			"netbox_region":               resourceNetboxRegion(),
 			"netbox_aggregate":            resourceNetboxAggregate(),
 			"netbox_rir":                  resourceNetboxRir(),
+			"netbox_route_target":         resourceNetboxRouteTarget(),
 			"netbox_circuit":              resourceNetboxCircuit(),
 			"netbox_circuit_type":         resourceNetboxCircuitType(),
 			"netbox_circuit_provider":     resourceNetboxCircuitProvider(),
@@ -99,6 +101,9 @@ func Provider() *schema.Provider {
 			"netbox_asn":                  resourceNetboxAsn(),
 			"netbox_location":             resourceNetboxLocation(),
 			"netbox_site_group":           resourceNetboxSiteGroup(),
+			"netbox_rack":                 resourceNetboxRack(),
+			"netbox_rack_role":            resourceNetboxRackRole(),
+			"netbox_rack_reservation":     resourceNetboxRackReservation(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":              dataSourceNetboxAsn(),
@@ -120,11 +125,16 @@ func Provider() *schema.Provider {
 			"netbox_tag":              dataSourceNetboxTag(),
 			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),
 			"netbox_interfaces":       dataSourceNetboxInterfaces(),
+			"netbox_ipam_role":        dataSourceNetboxIPAMRole(),
+			"netbox_route_target":     dataSourceNetboxRouteTarget(),
 			"netbox_ip_addresses":     dataSourceNetboxIpAddresses(),
 			"netbox_ip_range":         dataSourceNetboxIpRange(),
 			"netbox_region":           dataSourceNetboxRegion(),
 			"netbox_vlan":             dataSourceNetboxVlan(),
+			"netbox_vlan_group":       dataSourceNetboxVlanGroup(),
 			"netbox_site_group":       dataSourceNetboxSiteGroup(),
+			"netbox_racks":            dataSourceNetboxRacks(),
+			"netbox_rack_role":        dataSourceNetboxRackRole(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
@@ -232,7 +242,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-		supportedVersions := []string{"3.3.0", "3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8", "3.3.9", "3.3.10", "3.4.0", "3.4.1", "3.4.2", "3.4.3", "3.4.4"}
+		supportedVersions := []string{"3.3.0", "3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8", "3.3.9", "3.3.10", "3.4.0", "3.4.1", "3.4.2", "3.4.3", "3.4.4", "3.4.5", "3.4.6", "3.4.7", "3.4.8"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
 

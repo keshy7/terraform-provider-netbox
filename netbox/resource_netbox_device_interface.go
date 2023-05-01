@@ -114,6 +114,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		TaggedVlans:  taggedVlans,
 		Device:       &deviceID,
 		WirelessLans: []int64{},
+		Vdcs:         []int64{},
 	}
 	if macAddress := d.Get("mac_address").(string); macAddress != "" {
 		data.MacAddress = &macAddress
@@ -210,6 +211,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		TaggedVlans:  taggedVlans,
 		Device:       &deviceID,
 		WirelessLans: []int64{},
+		Vdcs:         []int64{},
 	}
 
 	if d.HasChange("mac_address") {
@@ -242,6 +244,12 @@ func resourceNetboxDeviceInterfaceDelete(ctx context.Context, d *schema.Resource
 
 	_, err := api.Dcim.DcimInterfacesDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*dcim.DcimInterfacesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return diag.FromErr(err)
 	}
 	return nil

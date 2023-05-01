@@ -238,6 +238,12 @@ func resourceNetboxPrefixDelete(d *schema.ResourceData, m interface{}) error {
 	params := ipam.NewIpamPrefixesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamPrefixesDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*ipam.IpamPrefixesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	d.SetId("")

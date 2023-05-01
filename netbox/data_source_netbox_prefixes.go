@@ -1,8 +1,8 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -51,6 +51,10 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"vlan_vid": {
 							Type:     schema.TypeFloat,
 							Computed: true,
@@ -67,6 +71,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"tags": tagsSchemaRead,
 					},
 				},
 			},
@@ -93,11 +98,19 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			case "prefix":
 				params.Prefix = &vString
 			case "vlan_vid":
-				params.VlanVid = v.(*float64)
+				float, err := strconv.ParseFloat(vString, 64)
+				if err != nil {
+					return err
+				}
+				params.VlanVid = &float
 			case "vrf_id":
 				params.VrfID = &vString
 			case "vlan_id":
 				params.VlanID = &vString
+			case "status":
+				params.Status = &vString
+			case "tag":
+				params.Tag = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -109,10 +122,6 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
-	}
-
 	filteredPrefixes := res.GetPayload().Results
 
 	var s []map[string]interface{}
@@ -121,6 +130,7 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 
 		mapping["id"] = v.ID
 		mapping["prefix"] = v.Prefix
+		mapping["description"] = v.Description
 		if v.Vlan != nil {
 			mapping["vlan_vid"] = v.Vlan.Vid
 			mapping["vlan_id"] = v.Vlan.ID
@@ -129,6 +139,7 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			mapping["vrf_id"] = v.Vrf.ID
 		}
 		mapping["status"] = v.Status.Value
+		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
 
 		s = append(s, mapping)
 	}

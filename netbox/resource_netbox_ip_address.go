@@ -224,6 +224,12 @@ func resourceNetboxIPAddressDelete(d *schema.ResourceData, m interface{}) error 
 
 	_, err := api.Ipam.IpamIPAddressesDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*ipam.IpamIPAddressesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return err
 	}
 	return nil

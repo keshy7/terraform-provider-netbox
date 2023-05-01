@@ -421,6 +421,12 @@ func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceD
 
 	_, err := api.Virtualization.VirtualizationVirtualMachinesDelete(params, nil)
 	if err != nil {
+		if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
+		}
 		return diag.FromErr(err)
 	}
 	return diags
