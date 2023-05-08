@@ -10,18 +10,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxTenantGroup() *schema.Resource {
+func resourceNetboxContactGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxTenantGroupCreate,
-		Read:   resourceNetboxTenantGroupRead,
-		Update: resourceNetboxTenantGroupUpdate,
-		Delete: resourceNetboxTenantGroupDelete,
+		Create: resourceNetboxContactGroupCreate,
+		Read:   resourceNetboxContactGroupRead,
+		Update: resourceNetboxContactGroupUpdate,
+		Delete: resourceNetboxContactGroupDelete,
 
-		Description: `:meta:subcategory:Tenancy:From the [official documentation](https://docs.netbox.dev/en/stable/features/tenancy/#tenant-groups):
+		Description: `:meta:subcategory:Tenancy:From the [official documentation](https://docs.netbox.dev/en/stable/features/contacts/#contact-groups):
 
-> Tenants can be organized by custom groups. For instance, you might create one group called "Customers" and one called "Departments." The assignment of a tenant to a group is optional.
->
-> Tenant groups may be nested recursively to achieve a multi-level hierarchy. For example, you might have a group called "Customers" containing subgroups of individual tenants grouped by product or account team.`,
+> Contacts can be grouped arbitrarily into a recursive hierarchy, and a contact can be assigned to a group at any level within the hierarchy.`,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -49,7 +47,7 @@ func resourceNetboxTenantGroup() *schema.Resource {
 	}
 }
 
-func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxContactGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
@@ -65,7 +63,7 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 		slug = slugValue.(string)
 	}
 
-	data := &models.WritableTenantGroup{}
+	data := &models.WritableContactGroup{}
 	data.Name = &name
 	data.Slug = &slug
 	data.Description = description
@@ -75,27 +73,27 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 		data.Parent = &parent_id
 	}
 
-	params := tenancy.NewTenancyTenantGroupsCreateParams().WithData(data)
+	params := tenancy.NewTenancyContactGroupsCreateParams().WithData(data)
 
-	res, err := api.Tenancy.TenancyTenantGroupsCreate(params, nil)
+	res, err := api.Tenancy.TenancyContactGroupsCreate(params, nil)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxTenantGroupRead(d, m)
+	return resourceNetboxContactGroupRead(d, m)
 }
 
-func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxContactGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := tenancy.NewTenancyTenantGroupsReadParams().WithID(id)
+	params := tenancy.NewTenancyContactGroupsReadParams().WithID(id)
 
-	res, err := api.Tenancy.TenancyTenantGroupsRead(params, nil)
+	res, err := api.Tenancy.TenancyContactGroupsRead(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyTenantGroupsReadDefault); ok {
+		if errresp, ok := err.(*tenancy.TenancyContactGroupsReadDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -115,11 +113,11 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 	return nil
 }
 
-func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxContactGroupUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableTenantGroup{}
+	data := models.WritableContactGroup{}
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
@@ -142,30 +140,24 @@ func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) erro
 	if parent_id != 0 {
 		data.Parent = &parent_id
 	}
-	params := tenancy.NewTenancyTenantGroupsPartialUpdateParams().WithID(id).WithData(&data)
+	params := tenancy.NewTenancyContactGroupsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Tenancy.TenancyTenantGroupsPartialUpdate(params, nil)
+	_, err := api.Tenancy.TenancyContactGroupsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
 
-	return resourceNetboxTenantGroupRead(d, m)
+	return resourceNetboxContactGroupRead(d, m)
 }
 
-func resourceNetboxTenantGroupDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxContactGroupDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantGroupsDeleteParams().WithID(id)
+	params := tenancy.NewTenancyContactGroupsDeleteParams().WithID(id)
 
-	_, err := api.Tenancy.TenancyTenantGroupsDelete(params, nil)
+	_, err := api.Tenancy.TenancyContactGroupsDelete(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyTenantGroupsDeleteDefault); ok {
-			if errresp.Code() == 404 {
-				d.SetId("")
-				return nil
-			}
-		}
 		return err
 	}
 	return nil

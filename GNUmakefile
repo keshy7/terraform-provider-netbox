@@ -2,7 +2,7 @@ TEST?=netbox/*.go
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 DOCKER_COMPOSE=docker-compose
 
-export NETBOX_VERSION=v3.4.8
+export NETBOX_VERSION=v3.4.10
 export NETBOX_SERVER_URL=http://localhost:8001
 export NETBOX_API_TOKEN=0123456789abcdef0123456789abcdef01234567
 export NETBOX_TOKEN=$(NETBOX_API_TOKEN)
@@ -34,6 +34,10 @@ docker-logs:
 .PHONY: docker-down
 docker-down:
 	$(DOCKER_COMPOSE) -f docker/docker-compose.yml down --volumes
+
+.PHONY: docs
+docs:
+	NETBOX_API_TOKEN="" NETBOX_SERVER_URL="" go generate ./...
 
 #! Development
 # The following make goals are only for local usage

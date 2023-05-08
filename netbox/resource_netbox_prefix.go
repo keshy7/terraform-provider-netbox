@@ -130,11 +130,13 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	res, err := api.Ipam.IpamPrefixesRead(params, nil)
 	if err != nil {
-		errorcode := err.(*ipam.IpamPrefixesReadDefault).Code()
-		if errorcode == 404 {
-			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*ipam.IpamPrefixesReadDefault); ok {
+			errorcode := errresp.Code()
+			if errorcode == 404 {
+				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
@@ -191,16 +193,20 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritablePrefix{}
 	prefix := d.Get("prefix").(string)
 	status := d.Get("status").(string)
-	description := d.Get("description").(string)
 	is_pool := d.Get("is_pool").(bool)
 	mark_utilized := d.Get("mark_utilized").(bool)
 
 	data.Prefix = &prefix
 	data.Status = status
 
-	data.Description = description
 	data.IsPool = is_pool
 	data.MarkUtilized = mark_utilized
+
+	if description, ok := d.GetOk("description"); ok {
+		data.Description = description.(string)
+	} else {
+		data.Description = " "
+	}
 
 	if vrfID, ok := d.GetOk("vrf_id"); ok {
 		data.Vrf = int64ToPtr(int64(vrfID.(int)))

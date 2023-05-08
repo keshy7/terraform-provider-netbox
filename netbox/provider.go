@@ -63,6 +63,7 @@ func Provider() *schema.Provider {
 			"netbox_cluster_type":         resourceNetboxClusterType(),
 			"netbox_cluster":              resourceNetboxCluster(),
 			"netbox_contact":              resourceNetboxContact(),
+			"netbox_contact_group":        resourceNetboxContactGroup(),
 			"netbox_contact_assignment":   resourceNetboxContactAssignment(),
 			"netbox_contact_role":         resourceNetboxContactRole(),
 			"netbox_device":               resourceNetboxDevice(),
@@ -96,6 +97,7 @@ func Provider() *schema.Provider {
 			"netbox_circuit_provider":     resourceNetboxCircuitProvider(),
 			"netbox_circuit_termination":  resourceNetboxCircuitTermination(),
 			"netbox_user":                 resourceNetboxUser(),
+			"netbox_permission":           resourceNetboxPermission(),
 			"netbox_token":                resourceNetboxToken(),
 			"netbox_custom_field":         resourceCustomField(),
 			"netbox_asn":                  resourceNetboxAsn(),
@@ -111,6 +113,8 @@ func Provider() *schema.Provider {
 			"netbox_cluster":          dataSourceNetboxCluster(),
 			"netbox_cluster_group":    dataSourceNetboxClusterGroup(),
 			"netbox_cluster_type":     dataSourceNetboxClusterType(),
+			"netbox_contact":          dataSourceNetboxContact(),
+			"netbox_contact_group":    dataSourceNetboxContactGroup(),
 			"netbox_tenant":           dataSourceNetboxTenant(),
 			"netbox_tenants":          dataSourceNetboxTenants(),
 			"netbox_tenant_group":     dataSourceNetboxTenantGroup(),
@@ -242,7 +246,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-		supportedVersions := []string{"3.3.0", "3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8", "3.3.9", "3.3.10", "3.4.0", "3.4.1", "3.4.2", "3.4.3", "3.4.4", "3.4.5", "3.4.6", "3.4.7", "3.4.8"}
+		supportedVersions := []string{"3.3.0", "3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8", "3.3.9", "3.3.10", "3.4.0", "3.4.1", "3.4.2", "3.4.3", "3.4.4", "3.4.5", "3.4.6", "3.4.7", "3.4.8", "3.4.9", "3.4.10"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
 
